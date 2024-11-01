@@ -1,0 +1,15 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Container_Boundary(mediaServiceBoundary, "Media Service") {
+    Container(mediaService, "Media Service", "Go", "Manages upload, storage, and retrieval of media files", $tags="webApp")
+    ContainerDb(mediaStorage, "Media Storage", "S3-compatible storage", "Stores media files such as photos, videos, and audio", $tags="storage")
+    ContainerDb(mediaMetadataDb, "Media Metadata Database", "PostgreSQL", "Stores metadata for media files (e.g., URL, type, user ownership)", $tags="db")
+}
+
+Person(user, "User", "Uploads and accesses media files")
+
+Rel(user, mediaService, "Uploads and retrieves media files", "REST API")
+Rel(mediaService, mediaStorage, "Stores and retrieves media content")
+Rel(mediaService, mediaMetadataDb, "Stores and retrieves media metadata")
+@enduml

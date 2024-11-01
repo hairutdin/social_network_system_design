@@ -1,0 +1,23 @@
+// Replication:
+// - Master-Slave Replication with three replicas for high availability.
+// - Replication factor: 3 to ensure data redundancy and fault tolerance.
+//
+// Sharding:
+// - Sharded by 'user_id' to distribute media metadata across nodes for load balancing.
+
+Table media {
+  id int [pk, increment, note: "Primary key for each media file"]
+  user_id int [not null, ref: > user.id, note: "ID of the user who uploaded the media file"]
+  media_type enum('photo', 'video', 'audio') [not null, note: "Type of the media (e.g., photo, video, audio)"]
+  url text [not null, unique, note: "URL of the media file in the storage system"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the media was uploaded"]
+  description text [note: "Optional description of the media content"]
+  size int [note: "Size of the media file in bytes"]
+  visibility enum('public', 'private', 'friends') [default: 'public', note: "Access level of the media file"]
+}
+
+// Indexes:
+// - 'user_id' and 'media_type' indexed for efficient retrieval of user-specific media by type.
+// - Unique constraint on 'url' to prevent duplicate entries.
+
+Index idx_media_user_type on media(user_id, media_type)

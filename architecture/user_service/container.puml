@@ -1,0 +1,16 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Container_Boundary(userServiceBoundary, "User Service") {
+    Container(userService, "User Service", "Go", "Manages user profiles, social connections, and interactions", $tags="webApp")
+    ContainerDb(userDb, "User Database", "PostgreSQL", "Stores user profiles and relationship data", $tags="db")
+    ContainerDb(sessionDb, "Session Store", "Redis", "Caches active user sessions for quick retrieval", $tags="cache")
+}
+
+Person(user, "User", "Creates, updates, and interacts with profiles and connections")
+
+Rel(user, userService, "Interacts with profile and friend features", "REST API")
+Rel(userService, userDb, "Reads and writes user data (profiles, friends)")
+Rel(userService, sessionDb, "Stores and retrieves active sessions")
+
+@enduml

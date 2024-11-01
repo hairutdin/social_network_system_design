@@ -1,0 +1,28 @@
+// Replication:
+// - Redis Sentinel setup for high availability and automatic failover.
+// - Replication factor: 3 to ensure reliability and prevent data loss.
+//
+// Sharding:
+// - Sharded by 'chat_id' to distribute active conversation data across nodes.
+
+Table cached_chat {
+  chat_id int [pk, note: "Unique identifier for each active chat, used as the key in the cache"]
+  user_1_id int [not null, ref: > user.id, note: "ID of the first user in the chat"]
+  user_2_id int [not null, ref: > user.id, note: "ID of the second user in the chat"]
+  last_message text [note: "Content of the most recent message in the chat"]
+  last_active datetime [not null, note: "Timestamp of the last message in the chat"]
+}
+
+// Replication:
+// - High availability for active messages, supporting real-time access to recent messages.
+
+Table cached_message {
+  message_id int [pk, note: "Unique identifier for each cached message"]
+  chat_id int [not null, ref: > cached_chat.chat_id, note: "ID of the active chat the message belongs to"]
+  sender_id int [not null, ref: > user.id, note: "ID of the user who sent the message"]
+  content text [not null, note: "Content of the cached message"]
+  sent_at datetime [not null, note: "Timestamp when the message was sent"]
+}
+
+// Notes:
+// - Active conversations and recent messages are cached for faster access in real-time chat interactions.

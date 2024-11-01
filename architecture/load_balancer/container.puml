@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User", "Interacts with the social network features (posts, chats, media)")
+
+Container(loadBalancer, "Load Balancer", "Nginx", "Distributes incoming requests across core services to balance traffic and ensure availability", $tags="gateway")
+
+System_Boundary(coreSystem, "Core System") {
+    Container(userService, "User Service", "Go", "Manages user profiles, connections, and social interactions", $tags="webApp")
+    Container(postService, "Post Service", "Go", "Handles posts, comments, and engagement data", $tags="webApp")
+    Container(chatService, "Chat Service", "Go", "Processes messaging requests", $tags="webApp")
+    Container(mediaService, "Media Service", "Go", "Uploads and serves media content", $tags="webApp")
+}
+
+Rel(user, loadBalancer, "Interacts with social features", "HTTP(S)")
+Rel(loadBalancer, userService, "Routes user requests", "HTTP(S)")
+Rel(loadBalancer, postService, "Routes post-related requests", "HTTP(S)")
+Rel(loadBalancer, chatService, "Routes messaging requests", "HTTP(S)")
+Rel(loadBalancer, mediaService, "Routes media requests", "HTTP(S)")
+
+@enduml

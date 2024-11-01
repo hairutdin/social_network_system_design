@@ -1,0 +1,41 @@
+// Replication:
+// - Master-Slave Replication with one synchronous and one asynchronous replica.
+// - Replication factor: 3 for high availability.
+//
+// Sharding:
+// - Sharded by 'user_id' to distribute user posts across nodes for load balancing.
+
+Table post {
+  id int [pk, increment, note: "Primary key for each post"]
+  user_id int [not null, ref: > user.id, note: "ID of the user who created the post"]
+  description text [note: "Text content of the post"]
+  media_url text [note: "URL of any media associated with the post (image, video, etc.)"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the post was created"]
+}
+
+// Replication:
+// - Read replicas for handling high read traffic for popular or recent posts.
+// - Sharding: Sharded by 'post_id' within each shard by 'user_id'.
+
+Table comment {
+  id int [pk, increment, note: "Primary key for each comment"]
+  post_id int [not null, ref: > post.id, note: "ID of the post that the comment is associated with"]
+  user_id int [not null, ref: > user.id, note: "ID of the user who made the comment"]
+  text text [note: "Content of the comment"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the comment was created"]
+}
+
+// Replication:
+// - Read replicas for high read availability of like data.
+
+Table like {
+  id int [pk, increment, note: "Primary key for each like"]
+  post_id int [not null, ref: > post.id, note: "ID of the liked post"]
+  user_id int [not null, ref: > user.id, note: "ID of the user who liked the post"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the like was made"]
+}
+
+// Indexes for optimized query performance
+Index idx_post_user on post(user_id, created_at)
+Index idx_comment_post on comment(post_id, created_at)
+Index idx_like_post on like(post_id, created_at)

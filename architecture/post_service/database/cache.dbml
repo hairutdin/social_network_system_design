@@ -1,0 +1,19 @@
+// Replication:
+// - Redis Sentinel setup for high availability with failover support.
+// - Replication factor: 3 to ensure reliability.
+//
+// Sharding:
+// - Post cache is sharded by 'post_id' for efficient data distribution and access.
+
+Table cached_post {
+  post_id int [pk, note: "Unique identifier for each post, used as the key in the cache"]
+  user_id int [not null, ref: > user.id, note: "ID of the user who created the post"]
+  description text [note: "Text content of the post, for quick display in feed"]
+  media_url text [note: "URL of any media attached to the post"]
+  created_at datetime [not null, note: "Timestamp when the post was created"]
+  popularity_score float [default: 0, note: "A calculated score based on engagement (likes, comments, views) for ranking"]
+}
+
+// Notes:
+// - Popular posts are cached for faster retrieval in feeds.
+// - Expiry time may be applied to remove stale data from cache.

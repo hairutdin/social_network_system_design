@@ -1,0 +1,18 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User", "Creates and interacts with posts, comments, and likes")
+
+Container_Boundary(postServiceBoundary, "Post Service") {
+    Container(postService, "Post Service", "Go", "Manages user posts, comments, likes, and other engagement metrics", $tags="webApp")
+    ContainerDb(postDb, "Post Database", "PostgreSQL", "Stores user posts, comments, and engagement data", $tags="db")
+    ContainerDb(postCache, "Post Cache", "Redis", "Caches recent and popular posts for faster read access", $tags="cache")
+}
+
+ContainerQueue(eventQueue, "Event Queue", "Kafka", "Receives engagement events for analytics")
+
+Rel(user, postService, "Creates and interacts with posts and comments", "REST API")
+Rel(postService, postDb, "Stores and retrieves posts, comments, and likes")
+Rel(postService, postCache, "Caches popular posts for quick access")
+Rel(postService, eventQueue, "Publishes engagement events (views, likes, comments)")
+@enduml
