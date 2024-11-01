@@ -1,0 +1,91 @@
+-- Table: user
+Table user {
+  id int [pk, increment]
+  name varchar
+  description text
+  photo_url text
+  city varchar
+  interests text
+  created_at datetime
+  updated_at datetime
+}
+
+-- Replication: Master-Slave Replication is used across user data to ensure high availability.
+-- Sharding: user data is sharded based on 'user_id' to allow efficient distribution of user-related records across nodes.
+
+-- Table: post
+Table post {
+  id int [pk, increment]
+  user_id int [ref: > user.id]
+  description text
+  media_url text
+  created_at datetime
+}
+
+-- Replication: Read replicas are used for post data to balance read-heavy workloads.
+-- Sharding: Sharded by 'user_id' to distribute posts per user across different shards, maintaining user-centric data locality.
+
+-- Table: like
+Table like {
+  id int [pk, increment]
+  post_id int [ref: > post.id]
+  user_id int [ref: > user.id]
+}
+
+-- Replication: Read replicas can be used if 'like' data experiences high read traffic.
+
+-- Table: comment
+Table comment {
+  id int [pk, increment]
+  post_id int [ref: > post.id]
+  user_id int [ref: > user.id]
+  text text
+  created_at datetime
+}
+
+-- Replication: Read replicas can be added for high-traffic read performance.
+
+-- Table: relationship
+Table relationship {
+  id int [pk, increment]
+  user_id int [ref: > user.id]
+  friend_id int [ref: > user.id]
+  type enum('friend', 'follower', 'romantic')
+  created_at datetime
+}
+
+-- Replication: Read replicas may be useful for social features where data is frequently accessed.
+
+-- Table: message
+Table message {
+  id int [pk, increment]
+  sender_id int [ref: > user.id]
+  receiver_id int [ref: > user.id]
+  chat_id int [ref: > chat.id]
+  content text
+  read boolean
+  created_at datetime
+}
+
+-- Replication: Master-Slave Replication to handle high read availability for message data.
+-- Sharding: Sharded by 'chat_id' to maintain data locality within individual chats.
+
+-- Table: chat
+Table chat {
+  id int [pk, increment]
+  user_1_id int [ref: > user.id]
+  user_2_id int [ref: > user.id]
+  created_at datetime
+}
+
+-- Table: media
+Table media {
+  id int [pk, increment]
+  user_id int [ref: > user.id]
+  media_type enum('photo', 'audio', 'video')
+  url text
+  created_at datetime
+}
+
+-- Replication: Replicate 'media' data as read replicas for media-heavy requests.
+-- Sharding: Sharded by 'user_id' to allow efficient storage and retrieval by user-related content.
