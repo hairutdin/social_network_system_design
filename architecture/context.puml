@@ -1,0 +1,28 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User", "End user interacting with social network features (posts, chats, media)")
+
+System_Boundary(socialNetworkSystem, "Social Network") {
+    Container(loadBalancer, "Load Balancer", "Nginx", "Distributes user requests across services")
+    Container(userService, "User Service", "Go", "Manages user profiles and connections")
+    Container(postService, "Post Service", "Go", "Handles posts and comments")
+    Container(chatService, "Chat Service", "Go", "Manages direct messaging")
+    Container(mediaService, "Media Service", "Go", "Handles media uploads and retrieval")
+    ContainerQueue(messageQueue, "Event Queue", "Kafka", "Processes engagement events for analytics")
+    Container_Ext(mediaStorage, "Media Storage", "S3-compatible storage", "Stores and retrieves media files for posts and messages.")
+    Container(analyticsSystem, "Analytics System", "Software system", "Tracks engagement metrics and provides insights")
+}
+
+Rel(user, loadBalancer, "Interacts with social features", "REST API")
+Rel(loadBalancer, userService, "Routes profile-related requests")
+Rel(loadBalancer, postService, "Routes post-related requests")
+Rel(loadBalancer, chatService, "Routes chat-related requests")
+Rel(loadBalancer, mediaService, "Routes media upload and retrieval requests")
+
+Rel(postService, messageQueue, "Publishes engagement events (likes, views, comments)")
+Rel(mediaService, mediaStorage, "Stores and retrieves media files", "S3 API")
+Rel(analyticsSystem, messageQueue, "Subscribes to engagement events")
+
+Rel(analyticsSystem, user, "Provides engagement insights and trends", "REST API")
+@enduml

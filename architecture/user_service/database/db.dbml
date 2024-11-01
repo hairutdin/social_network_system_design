@@ -1,0 +1,33 @@
+// Replication:
+// - Master-Slave Replication with one synchronous and one asynchronous replica.
+// - Replication factor: 3 for high availability and fault tolerance.
+//
+// Sharding:
+// - Sharded by 'user_id' to distribute user-related data across multiple nodes.
+
+Table user {
+  id int [pk, increment, note: "Primary key for each user"]
+  name varchar [not null, note: "User's display name"]
+  description text [note: "User's profile description or bio"]
+  photo_url text [note: "URL of the user's profile picture"]
+  city varchar [note: "City where the user is located"]
+  interests text [note: "List of user interests, stored as a comma-separated string"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Account creation timestamp"]
+  updated_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp of the last profile update"]
+}
+
+// Replication:
+// - Read replicas are used to handle frequent read access for friends and social connections.
+
+Table relationship {
+  id int [pk, increment, note: "Primary key for each relationship"]
+  user_id int [not null, ref: > user.id, note: "ID of the user who initiated the connection"]
+  friend_id int [not null, ref: > user.id, note: "ID of the connected friend"]
+  type enum('friend', 'follower', 'romantic') [note: "Type of relationship (friend, follower, or romantic)"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the relationship was created"]
+}
+
+// Indexes:
+// - 'user_id' and 'friend_id' indexed to optimize relationship queries.
+
+Index idx_relationship_user_friend on relationship(user_id, friend_id)

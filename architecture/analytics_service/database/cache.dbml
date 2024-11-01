@@ -1,0 +1,16 @@
+// Replication:
+// - Redis Sentinel setup with three replicas for high availability and failover support.
+//
+// Sharding:
+// - Sharded by 'post_id' to balance load and distribute data efficiently.
+
+Table cached_engagement {
+  post_id int [pk, note: "Primary key for each post's cached engagement data"]
+  views int [default: 0, note: "Cached total number of views for the post"]
+  likes int [default: 0, note: "Cached total number of likes for the post"]
+  comments int [default: 0, note: "Cached total number of comments for the post"]
+  last_updated datetime [not null, note: "Timestamp of the last cache update"]
+}
+
+// Notes:
+// - Frequently requested engagement data is cached here to improve performance for popular posts.

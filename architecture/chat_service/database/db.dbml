@@ -1,0 +1,35 @@
+// Replication:
+// - MongoDB Replica Set with three nodes for fault tolerance.
+// - Replication factor: 3 to ensure high availability.
+//
+// Sharding:
+// - Sharded by 'chat_id' to evenly distribute conversations across nodes.
+
+Collection chat {
+  id ObjectId [pk, note: "Primary key for each chat or conversation"]
+  participants Array<ObjectId> [not null, ref: > user.id, note: "Array of user IDs in the chat"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the chat was created"]
+  last_message ObjectId [ref: > message.id, note: "ID of the last message in the chat"]
+}
+
+// Replication:
+// - MongoDB allows for read replicas on sharded clusters to handle high read volumes.
+//
+// Sharding:
+// - Messages are sharded by 'chat_id' to keep messages of each conversation grouped within a shard.
+
+Collection message {
+  id ObjectId [pk, note: "Primary key for each message"]
+  chat_id ObjectId [not null, ref: > chat.id, note: "ID of the chat this message belongs to"]
+  sender_id ObjectId [not null, ref: > user.id, note: "ID of the user who sent the message"]
+  content text [not null, note: "Content of the message"]
+  read boolean [default: false, note: "Status indicating if the message has been read"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the message was sent"]
+}
+
+// Indexes:
+// - Index on 'chat_id' in the message collection to improve retrieval performance by chat.
+// - Compound index on 'participants' and 'created_at' in the chat collection for efficient query performance.
+
+Index idx_message_chat on message(chat_id, created_at)
+Index idx_chat_participants on chat(participants, created_at)

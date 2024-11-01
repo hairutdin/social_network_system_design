@@ -1,0 +1,31 @@
+// Replication:
+// - Multi-node replication in ClickHouse for high availability and fault tolerance.
+//
+// Sharding:
+// - Sharded by 'user_id' to distribute engagement data across nodes for balanced load.
+
+Table engagement_event {
+  id int [pk, increment, note: "Primary key for each event"]
+  user_id int [not null, ref: > user.id, note: "ID of the user involved in the event"]
+  post_id int [ref: > post.id, note: "ID of the post associated with the event, if applicable"]
+  event_type enum('view', 'like', 'comment') [not null, note: "Type of engagement event"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the event occurred"]
+  metadata json [note: "Additional data about the event, stored as JSON"]
+}
+
+// Replication:
+// - ClickHouse replication with three replicas for fault tolerance.
+
+Table engagement_aggregate {
+  id int [pk, increment, note: "Primary key for each aggregate record"]
+  user_id int [not null, ref: > user.id, note: "ID of the user whose engagement is tracked"]
+  post_id int [ref: > post.id, note: "ID of the post associated with engagement data"]
+  views int [default: 0, note: "Total number of views"]
+  likes int [default: 0, note: "Total number of likes"]
+  comments int [default: 0, note: "Total number of comments"]
+  last_updated datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp of last update to this aggregate"]
+}
+
+// Indexes for optimized query performance
+Index idx_engagement_user_event on engagement_event(user_id, event_type, created_at)
+Index idx_aggregate_user_post on engagement_aggregate(user_id, post_id)

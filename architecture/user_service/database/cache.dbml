@@ -1,0 +1,27 @@
+// Replication:
+// - Redis Sentinel setup for high availability.
+// - Replication factor: 3 to prevent single-point failures.
+//
+// Sharding:
+// - Session data is sharded by 'session_id' to distribute cached data efficiently.
+
+Table user_session {
+  session_id varchar [pk, note: "Unique identifier for each user session"]
+  user_id int [not null, ref: > user.id, note: "ID of the user associated with the session"]
+  created_at datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the session was created"]
+  last_accessed datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp of the last access, updated on each request"]
+  expires_at datetime [not null, note: "Expiration time for the session, to enforce session timeout policies"]
+}
+
+// Replication:
+// - High availability for the active user cache to support real-time status updates.
+
+Table active_user {
+  user_id int [pk, ref: > user.id, note: "Primary key for each active user"]
+  status enum('online', 'offline', 'away') [default: 'offline', note: "Current status of the user (online, offline, or away)"]
+  last_seen datetime [not null, default: "CURRENT_TIMESTAMP", note: "Timestamp when the user was last active"]
+}
+
+// Notes:
+// - The session data allows for rapid retrieval of active sessions.
+// - Active user status provides real-time information on user presence.

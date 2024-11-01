@@ -1,0 +1,15 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Container_Boundary(chatServiceBoundary, "Chat Service") {
+    Container(chatService, "Chat Service", "Go", "Manages user conversations and messages in real-time", $tags="webApp")
+    ContainerDb(chatDb, "Chat Database", "MongoDB", "Stores chat messages and conversation history", $tags="db")
+    ContainerDb(chatCache, "Chat Cache", "Redis", "Caches recent and frequently accessed conversations for fast retrieval", $tags="cache")
+}
+
+Person(user, "User", "Sends and receives messages in real-time")
+
+Rel(user, chatService, "Sends and retrieves messages", "WebSocket / REST API")
+Rel(chatService, chatDb, "Stores and retrieves messages and chat history")
+Rel(chatService, chatCache, "Caches active conversations for quick access")
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User", "Requests analytics and engagement insights")
+
+Container(loadBalancer, "Load Balancer", "Nginx", "Distributes requests across analytics instances")
+ContainerQueue(eventQueue, "Event Queue", "Kafka", "Processes engagement events for analytics")
+Container(postService, "Post Service", "", "Post service sending engagement data")
+
+    Container(analyticsService, "Analytics Service", "Go", "Processes events, aggregates data, and provides engagement insights", $tags="webApp")
+    ContainerDb(analyticsDb, "Analytics Database", "ClickHouse", "Stores detailed engagement metrics and event data", $tags="db")
+    ContainerDb(analyticsCache, "Analytics Cache", "Redis", "Caches frequently requested insights for quick access", $tags="cache")
+
+Rel(user, loadBalancer, "Requests engagement insights", "REST API")
+Rel(loadBalancer, analyticsService, "Routes requests to analytics instances")
+Rel(postService, eventQueue, "Publishes engagement events (views, likes, comments)")
+Rel(eventQueue, analyticsService, "Processes and aggregates engagement events")
+Rel(analyticsService, analyticsDb, "Stores detailed and aggregated event data")
+Rel(analyticsService, analyticsCache, "Caches aggregated insights for fast retrieval")
+@enduml
+
