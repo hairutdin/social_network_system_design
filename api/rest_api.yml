@@ -1,0 +1,293 @@
+openapi: 3.0.0
+info:
+  title: Social Network API
+  description: API for a social network with user posts, friends, chats, and more.
+  version: 1.0.0
+paths:
+  /friends/{user_id}:
+    post:
+      summary: Add a user to the friend list.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the user to add as a friend.
+      responses:
+        '200':
+          description: User added as a friend.
+    delete:
+      summary: Remove a user from the friend list.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the user to remove from the friend list
+      responses:
+        '200':
+          description: User removed from the friend list.
+          
+  /users/{user_id}/friends:
+    get:
+      summary: Get a list of friends for a specific user.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the user whose friends are being viewed
+      responses:
+        '200':
+          description: List of friends
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                      
+  /users/{user_id}:
+    get:
+      summary: Get the profile details of a specific user.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the user whose profile is being viewed.
+      responses:
+        '200':
+          description: User profile details
+          content:
+             application/json:
+               schema:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    bio:
+                      type: string
+                    profile_picture:
+                      type: string
+                    
+  /posts:
+    post:
+      summary: Create a new post.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                media:
+                  type: array
+                  items:
+                    type: string
+                    description: Media file ID(s)
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post_id:
+                    type: string
+  
+  /media/upload:
+    post:
+      summary: Upload media files for a post.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+          '200':
+            description: Media uploaded
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    media_id:
+                      type: string
+                    
+  /users/{user_id}/feed:
+    get:
+      summary: Get the feed of posts for a specific user.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the user whose feed is being viewed.
+      responses:
+          '200':
+            description: List of posts
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      post_id:
+                        type: string
+                      content:
+                        type: string
+                      media:
+                        type: array
+                        items:
+                          type: string 
+                          
+  /feed:
+      get:
+        summary: Get the home feed (posts from friends and followed accounts).
+        responses:
+          '200':
+            description: List of posts
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      post_id:
+                        type: string
+                      content:
+                        type: string
+                      media:
+                        type: array
+                        items:
+                          type: string
+  
+  /chats:
+      get:
+        summary: Get the list of chats the user is participating in.
+        responses:
+          '200':
+            description: List of chats
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      chat_id:
+                        type: string
+                      last_message:
+                        type: string
+  
+  /chats/{chat_id}:
+      get:
+        summary: Get messages from a specific chat.
+        parameters:
+          - name: chat_id
+            in: path
+            required: true
+            schema:
+              type: string
+            description: ID of the chat whose messages are being viewed.
+        responses:
+          '200':
+            description: List of messages in the chat
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      message_id:
+                        type: string
+                      content:
+                        type: string
+                      media:
+                        type: array
+                        items:
+                          type: string
+  
+  /chats/{chat_id}/messages:
+      post:
+        summary: Send a new message in a specific chat.
+        parameters:
+          - name: chat_id
+            in: path
+            required: true
+            schema:
+              type: string
+            description: ID of the chat where the message is sent.
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: string
+                  media:
+                    type: array
+                    items:
+                      type: string
+                      description: Media file ID(s)
+        responses:
+          '201':
+            description: Message sent
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message_id:
+                      type: string
+  
+      get:
+        summary: Get all messages from a specific chat.
+        parameters:
+          - name: chat_id
+            in: path
+            required: true
+            schema:
+              type: string
+            description: ID of the chat whose messages are being viewed.
+        responses:
+          '200':
+            description: List of messages in the chat
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      message_id:
+                        type: string
+                      content:
+                        type: string
+                      media:
+                        type: array
+                        items:
+                          type: string

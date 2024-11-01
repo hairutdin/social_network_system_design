@@ -1,0 +1,62 @@
+Table user {
+  id int [pk, increment]
+  name varchar
+  description text
+  photo_url varchar
+  city varchar
+  interests text
+}
+
+Table post {
+  id int [pk, increment]
+  user_id int [ref: > user.id]
+  description text
+  media_url varchar
+  created_at datetime
+}
+
+Table like {
+  id int [pk, increment]
+  post_id int [ref: > post.id]
+  user_id int [ref: > user.id]
+}
+
+Table comment {
+  id int [pk, increment]
+  post_id int [ref: > post.id]
+  user_id int [ref: > user.id]
+  text text
+  created_at datetime
+}
+
+Table relationship {
+  id int [pk, increment]
+  user_id int [ref: > user.id]
+  friend_id int [ref: > user.id]
+  type enum('friend', 'follower', 'romantic')
+}
+
+Table message {
+  id int [pk, increment]
+  sender_id int [ref: > user.id]
+  receiver_id int [ref: > user.id]
+  chat_id int [ref: > chat.id]
+  content text
+  read boolean
+  created_at datetime
+}
+
+Table chat {
+  id int [pk, increment]
+  user_1_id int [ref: > user.id]
+  user_2_id int [ref: > user.id]
+  created_at datetime
+}
+
+Table media {
+  id int [pk, increment]
+  user_id int [ref: > user.id]
+  media_type enum('photo', 'audio', 'video')
+  url varchar
+  created_at datetime
+}
